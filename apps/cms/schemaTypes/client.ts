@@ -11,6 +11,12 @@ export const client = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'slug',
+      type: 'slug',
+      options: { source: 'name' },
+      validation: (r) => r.required(),
+    }),
+    defineField({
       name: 'year',
       type: 'number',
       validation: (Rule) => Rule.required(),

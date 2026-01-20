@@ -27,25 +27,41 @@ export default function HomeClient({ clients, contacts }: HomeClientProps) {
 
   return (
     <>
-      <Table
-        rows={clients}
-        columns={[
-          {
-            header: 'Client',
-            render: (c) => (
-              <Link href={`/${c.name.toLowerCase()}`}>{c.name}</Link>
-            ),
-          },
-          { header: 'Year', render: (c) => c.year },
-          { header: 'Focus', render: (c) => c.focus?.join(', ') },
-        ]}
-      />
-
+      <div className="mb-6 md:mb-14">
+        <Table
+          rows={clients}
+          columns={[
+            {
+              header: 'Client',
+              render: (c) => (
+                <Link
+                  href={`/${c.slug}`}
+                  className="text-body text-link cursor-pointer underline md:text-base"
+                >
+                  {c.name}
+                </Link>
+              ),
+            },
+            { header: 'Year', render: (c) => c.year },
+            { header: 'Focus', render: (c) => c.focus?.join(', ') },
+          ]}
+        />
+      </div>
       <Table
         rows={contacts}
         columns={[
           { header: 'Contact', render: (c) => c.type },
-          { header: 'Address', render: (c) => c.value },
+          {
+            header: 'Address',
+            render: (c) => (
+              <Link
+                href={`/${c.value.toLowerCase()}`}
+                className="text-body text-link cursor-pointer underline md:text-base"
+              >
+                {c.value}
+              </Link>
+            ),
+          },
         ]}
       />
     </>

@@ -4,6 +4,7 @@ export const clientsQuery = groq`
   *[_type == "client"] | order(year desc) {
     _id,
     name,
+    "slug": slug.current,
     year,
     focus,
     samples[]{
