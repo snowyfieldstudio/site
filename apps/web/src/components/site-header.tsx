@@ -13,7 +13,7 @@ export default function SiteHeader() {
   const linkText = isClientPage ? '← See All' : 'Snowyfield.Studio';
 
   return (
-    <div className="font-headerXL text-link mb-4 cursor-pointer underline decoration-3 md:mb-12 md:text-5xl">
+    <div className="font-headerXL text-link mb-10 cursor-pointer underline decoration-3 md:mb-12 md:text-5xl">
       <Link href="/">{linkText}</Link>
     </div>
   );

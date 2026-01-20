@@ -43,7 +43,11 @@ export function Table<T>({
         {rows.map((row, r) => (
           <tr key={r}>
             {columns.map((col, c) => (
-              <td key={c} style={{ border: '1px solid black', padding: 8 }}>
+              <td
+                key={c}
+                style={{ border: '1px solid black', padding: 8 }}
+                className="text-body md:text-base"
+              >
                 {col.render(row)}
               </td>
             ))}

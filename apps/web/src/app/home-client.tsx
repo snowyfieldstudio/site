@@ -27,7 +27,7 @@ export default function HomeClient({ clients, contacts }: HomeClientProps) {
 
   return (
     <>
-      <div className="mb-6 md:mb-14">
+      <div className="mb-12 md:mb-14">
         <Table
           rows={clients}
           columns={[
