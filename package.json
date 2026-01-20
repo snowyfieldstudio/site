@@ -1,0 +1,19 @@
+{
+  "name": "snowyfield",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces",
+    "dev:cms": "npm run dev --workspace=apps/cms",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspaces",
+    "build:cms": "npm run build --workspace=apps/cms",
+    "build:web": "npm run build --workspace=apps/web"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
