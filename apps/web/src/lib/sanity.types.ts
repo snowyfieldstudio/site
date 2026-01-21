@@ -11,6 +11,7 @@ export const ClientSchema = z.object({
   name: z.string(),
   slug: z.string(),
   year: z.number(),
+  displayUrl: z.string(),
   focus: z.array(z.string()).optional(),
   samples: z.array(SampleSchema).optional(),
 });

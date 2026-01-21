@@ -5,6 +5,7 @@ export const clientsQuery = groq`
     _id,
     name,
     "slug": slug.current,
+    displayUrl,
     year,
     focus,
     samples[]{

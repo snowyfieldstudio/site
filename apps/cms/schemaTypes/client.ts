@@ -22,6 +22,11 @@ export const client = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'displayUrl',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'focus',
       type: 'array',
       of: [{ type: 'string' }],
