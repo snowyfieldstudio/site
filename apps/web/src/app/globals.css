@@ -26,12 +26,7 @@
   @apply text-labelXL font-secondary leading-8 font-semibold tracking-tight italic;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Keep colors fixed regardless of OS theme. */
 
 body {
   background: var(--background);
