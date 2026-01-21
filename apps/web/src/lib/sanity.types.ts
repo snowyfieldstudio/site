@@ -26,13 +26,13 @@ const BaseSampleSchema = z.object({
 const ImageSampleSchema = BaseSampleSchema.extend({
   sampleType: z.literal('image'),
   image: SampleImageSchema,
-  videoPlaybackId: z.never().optional(),
+  videoPlaybackId: z.null().optional(),
 });
 
 const VideoSampleSchema = BaseSampleSchema.extend({
   sampleType: z.literal('video'),
   videoPlaybackId: z.string(),
-  image: z.never().optional(),
+  image: z.null().optional(),
 });
 
 export const SampleSchema = z.discriminatedUnion('sampleType', [
@@ -49,6 +49,13 @@ export const ClientSchema = z.object({
   samples: z.array(SampleSchema).optional(),
 });
 
+export const ContactSchema = z.object({
+  type: z.enum(['email', 'instagram']),
+  value: z.string(),
+});
+
 export type Client = z.infer<typeof ClientSchema>;
 
 export type Sample = z.infer<typeof SampleSchema>;
+
+export type Contact = z.infer<typeof ContactSchema>;

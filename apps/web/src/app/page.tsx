@@ -1,13 +1,11 @@
 import React from 'react';
 
-import { sanityClient } from '@/lib/sanity.client';
-import { clientsQuery, contactsQuery } from '@/lib/sanity.queries';
 import HomeClient from '@/app/home-client';
+import { getClientsAndContacts } from '@/lib/sanity.loader';
 
 export default async function Page() {
-  const clients = await sanityClient.fetch(clientsQuery);
-
-  const contacts = await sanityClient.fetch(contactsQuery);
+  // Data is fetched/validated once in the shared server loader.
+  const { clients, contacts } = await getClientsAndContacts();
 
   return <HomeClient clients={clients} contacts={contacts} />;
 }

@@ -1,17 +1,10 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
-import { useSetAtom } from 'jotai';
 
-import { clientsAtom } from '@/lib/atoms/clients';
-import type { Client } from '@/lib/sanity.types';
+import type { Client, Contact } from '@/lib/sanity.types';
+import { normalizeSlug } from '@/lib/slug';
 import { Table } from '@/components/Table';
-
-type Contact = {
-  type: 'email' | 'instagram';
-  value: string;
-};
 
 type HomeClientProps = {
   clients: Client[];
@@ -32,12 +25,6 @@ const getContactLinkProps = (contact: Contact) => {
 };
 
 export default function HomeClient({ clients, contacts }: HomeClientProps) {
-  const setClients = useSetAtom(clientsAtom);
-
-  React.useEffect(() => {
-    setClients((prev) => prev ?? clients);
-  }, [clients, setClients]);
-
   return (
     <>
       <div className="mb-12 md:mb-14">
@@ -48,7 +35,7 @@ export default function HomeClient({ clients, contacts }: HomeClientProps) {
               header: 'Client',
               render: (c) => (
                 <Link
-                  href={`/${c.slug}`}
+                  href={`/${normalizeSlug(c.slug)}`}
                   className="text-body text-link cursor-pointer underline hover:no-underline active:text-red-500 md:text-base"
                 >
                   {c.name}

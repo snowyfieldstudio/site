@@ -7,7 +7,7 @@ import { useAtomValue } from 'jotai';
 
 import { clientsAtom } from '@/lib/atoms/clients';
 import type { Sample } from '@/lib/sanity.types';
-import Link from 'next/link';
+import { isSlugMatch } from '@/lib/slug';
 
 import { Table } from '@/components/Table';
 import { BrowserMockup } from '@/components/browser-mockup';
@@ -32,11 +32,12 @@ export default function ClientPage({ params }: ClientPageProps) {
 
   const clients = useAtomValue(clientsAtom);
 
+  // Wait for layout hydration if clients are not ready yet.
   if (!clients) return null;
 
-  const client = clients.find(
-    (c) => c.slug === resolvedParams.client?.toLowerCase(),
-  );
+  const requestedSlug = resolvedParams.client ?? '';
+
+  const client = clients.find((c) => isSlugMatch(c.slug, requestedSlug));
 
   if (!client) return notFound();
 
@@ -115,8 +116,7 @@ export default function ClientPage({ params }: ClientPageProps) {
           ]}
         />
       </div>
-      {/* spacing: keep two breaks */}
-      {/* spacing: keep two breaks */}
+
       <div className="flex flex-col gap-10">
         {desktopSample ? (
           <BrowserMockup
