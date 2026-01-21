@@ -41,23 +41,19 @@ export function BrowserMockup({
       <div className={toolbarClasses}>
         <div className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
-          {/* spacing: keep two breaks */}
-          {/* spacing: keep two breaks */}
+
           <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
-          {/* spacing: keep two breaks */}
-          {/* spacing: keep two breaks */}
+
           <span className="h-3 w-3 rounded-full bg-[#28c840]" />
         </div>
-        {/* spacing: keep two breaks */}
-        {/* spacing: keep two breaks */}
+
         <div className="flex-1">
           <div className="rounded-full bg-neutral-100 px-3 py-1 text-xs text-neutral-500">
             {url}
           </div>
         </div>
       </div>
-      {/* spacing: keep two breaks */}
-      {/* spacing: keep two breaks */}
+
       <div
         className={contentClasses}
         style={aspectRatio ? { aspectRatio } : undefined}

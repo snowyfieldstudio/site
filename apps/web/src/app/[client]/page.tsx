@@ -2,9 +2,11 @@
 
 import React from 'react';
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 import { useAtomValue } from 'jotai';
 
 import { clientsAtom } from '@/lib/atoms/clients';
+import type { Sample } from '@/lib/sanity.types';
 import Link from 'next/link';
 
 import { Table } from '@/components/Table';
@@ -22,9 +24,11 @@ type ClientPageProps = {
 export default function ClientPage({ params }: ClientPageProps) {
   const resolvedParams = React.use(params);
 
-  const [desktopAspectRatio, setDesktopAspectRatio] = React.useState('16 / 9');
+  const [desktopVideoAspectRatio, setDesktopVideoAspectRatio] =
+    React.useState('16 / 9');
 
-  const [mobileAspectRatio, setMobileAspectRatio] = React.useState('9 / 16');
+  const [mobileVideoAspectRatio, setMobileVideoAspectRatio] =
+    React.useState('9 / 16');
 
   const clients = useAtomValue(clientsAtom);
 
@@ -34,9 +38,43 @@ export default function ClientPage({ params }: ClientPageProps) {
     (c) => c.slug === resolvedParams.client?.toLowerCase(),
   );
 
-  console.log('client', client);
-
   if (!client) return notFound();
+
+  const desktopSample =
+    client.samples?.find((sample) => sample.deviceType === 'laptop') ?? null;
+
+  const mobileSample =
+    client.samples?.find((sample) => sample.deviceType === 'phone') ?? null;
+
+  type ImageSample = Extract<Sample, { sampleType: 'image' }>;
+
+  const getImageAspectRatio = (sample: ImageSample | null) => {
+    const dimensions = sample?.image?.asset?.metadata?.dimensions;
+
+    if (!dimensions?.width || !dimensions?.height) return null;
+
+    return `${dimensions.width} / ${dimensions.height}`;
+  };
+
+  const desktopImageAspectRatio =
+    desktopSample?.sampleType === 'image'
+      ? getImageAspectRatio(desktopSample)
+      : null;
+
+  const mobileImageAspectRatio =
+    mobileSample?.sampleType === 'image'
+      ? getImageAspectRatio(mobileSample)
+      : null;
+
+  const desktopAspectRatio =
+    desktopSample?.sampleType === 'image'
+      ? (desktopImageAspectRatio ?? '16 / 9')
+      : desktopVideoAspectRatio;
+
+  const mobileAspectRatio =
+    mobileSample?.sampleType === 'image'
+      ? (mobileImageAspectRatio ?? '9 / 16')
+      : mobileVideoAspectRatio;
 
   const handleDesktopMetadata = (event: CustomEvent) => {
     const target = event.target as
@@ -47,7 +85,7 @@ export default function ClientPage({ params }: ClientPageProps) {
 
     if (!video?.videoWidth || !video?.videoHeight) return;
 
-    setDesktopAspectRatio(`${video.videoWidth} / ${video.videoHeight}`);
+    setDesktopVideoAspectRatio(`${video.videoWidth} / ${video.videoHeight}`);
   };
 
   const handleMobileMetadata = (event: CustomEvent) => {
@@ -59,7 +97,7 @@ export default function ClientPage({ params }: ClientPageProps) {
 
     if (!video?.videoWidth || !video?.videoHeight) return;
 
-    setMobileAspectRatio(`${video.videoWidth} / ${video.videoHeight}`);
+    setMobileVideoAspectRatio(`${video.videoWidth} / ${video.videoHeight}`);
   };
 
   return (
@@ -84,54 +122,75 @@ export default function ClientPage({ params }: ClientPageProps) {
           ]}
         />
       </div>
-
+      {/* spacing: keep two breaks */}
+      {/* spacing: keep two breaks */}
       <div className="flex flex-col gap-10">
-        <BrowserMockup url="www.noua-unu.com" aspectRatio={desktopAspectRatio}>
-          <MuxPlayer
-            playbackId="rUvZiRjJCwVoenqnlmqjy02olSJTnhxIPoptky2N2nks"
-            muted
-            autoPlay
-            loop
-            nohotkeys
-            disablePictureInPicture
-            className="pointer-events-none h-full w-full object-cover"
-            style={{
-              '--controls': 'none',
-              '--play-button': 'none',
-            }}
-            onLoadedMetadata={handleDesktopMetadata}
-            metadata={{
-              video_id: 'video-id-123456',
-              video_title: 'Bick Buck Bunny',
-              viewer_user_id: 'user-id-bc-789',
-            }}
-          />
-        </BrowserMockup>
-
-        <MobileBrowserMockup
-          url="www.noua-unu.com"
-          aspectRatio={mobileAspectRatio}
-        >
-          <MuxPlayer
-            playbackId="wk23bOewuOlE17MeEpr2QNobBsPukm9ZjO3PnmV6dxA"
-            muted
-            autoPlay
-            loop
-            nohotkeys
-            disablePictureInPicture
-            className="pointer-events-none h-full w-full object-cover"
-            style={{
-              '--controls': 'none',
-              '--play-button': 'none',
-            }}
-            onLoadedMetadata={handleMobileMetadata}
-            metadata={{
-              video_id: 'video-id-123456',
-              video_title: 'Bick Buck Bunny',
-              viewer_user_id: 'user-id-bc-789',
-            }}
-          />
-        </MobileBrowserMockup>
+        {desktopSample ? (
+          <BrowserMockup
+            url={client.displayUrl}
+            aspectRatio={desktopAspectRatio}
+            contentClassName="relative"
+          >
+            {desktopSample.sampleType === 'video' ? (
+              <MuxPlayer
+                playbackId={desktopSample.videoPlaybackId}
+                muted
+                autoPlay
+                loop
+                nohotkeys
+                disablePictureInPicture
+                className="pointer-events-none h-full w-full object-cover"
+                style={{
+                  '--controls': 'none',
+                  '--play-button': 'none',
+                }}
+                onLoadedMetadata={handleDesktopMetadata}
+              />
+            ) : (
+              <Image
+                src={desktopSample.image.asset.url}
+                alt={`${client.name} desktop sample`}
+                fill
+                sizes="100vw"
+                className="object-cover"
+              />
+            )}
+          </BrowserMockup>
+        ) : null}
+        {/* spacing: keep two breaks */}
+        {/* spacing: keep two breaks */}
+        {mobileSample ? (
+          <MobileBrowserMockup
+            url={client.displayUrl}
+            aspectRatio={mobileAspectRatio}
+            contentClassName="relative"
+          >
+            {mobileSample.sampleType === 'video' ? (
+              <MuxPlayer
+                playbackId={mobileSample.videoPlaybackId}
+                muted
+                autoPlay
+                loop
+                nohotkeys
+                disablePictureInPicture
+                className="pointer-events-none h-full w-full object-cover"
+                style={{
+                  '--controls': 'none',
+                  '--play-button': 'none',
+                }}
+                onLoadedMetadata={handleMobileMetadata}
+              />
+            ) : (
+              <Image
+                src={mobileSample.image.asset.url}
+                alt={`${client.name} mobile sample`}
+                fill
+                sizes="100vw"
+                className="object-cover"
+              />
+            )}
+          </MobileBrowserMockup>
+        ) : null}
       </div>
     </>
   );

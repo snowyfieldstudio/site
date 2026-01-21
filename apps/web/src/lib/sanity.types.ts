@@ -1,11 +1,44 @@
 import { z } from 'zod';
 
-export const SampleSchema = z.object({
-  deviceType: z.enum(['phone', 'laptop', 'tablet']),
-  sampleType: z.enum(['image', 'video']),
-  image: z.any().optional(),
-  videoPlaybackId: z.string().optional(),
+const ImageDimensionsSchema = z.object({
+  width: z.number(),
+  height: z.number(),
 });
+
+const ImageMetadataSchema = z.object({
+  dimensions: ImageDimensionsSchema,
+});
+
+const ImageAssetSchema = z.object({
+  _id: z.string(),
+  url: z.string(),
+  metadata: ImageMetadataSchema,
+});
+
+const SampleImageSchema = z.object({
+  asset: ImageAssetSchema,
+});
+
+const BaseSampleSchema = z.object({
+  deviceType: z.enum(['phone', 'laptop', 'tablet']),
+});
+
+const ImageSampleSchema = BaseSampleSchema.extend({
+  sampleType: z.literal('image'),
+  image: SampleImageSchema,
+  videoPlaybackId: z.never().optional(),
+});
+
+const VideoSampleSchema = BaseSampleSchema.extend({
+  sampleType: z.literal('video'),
+  videoPlaybackId: z.string(),
+  image: z.never().optional(),
+});
+
+export const SampleSchema = z.discriminatedUnion('sampleType', [
+  ImageSampleSchema,
+  VideoSampleSchema,
+]);
 
 export const ClientSchema = z.object({
   name: z.string(),
@@ -17,3 +50,5 @@ export const ClientSchema = z.object({
 });
 
 export type Client = z.infer<typeof ClientSchema>;
+
+export type Sample = z.infer<typeof SampleSchema>;

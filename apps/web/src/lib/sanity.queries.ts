@@ -11,7 +11,18 @@ export const clientsQuery = groq`
     samples[]{
       deviceType,
       sampleType,
-      image,
+      image{
+        asset->{
+          _id,
+          url,
+          metadata{
+            dimensions{
+              width,
+              height
+            }
+          }
+        }
+      },
       videoPlaybackId
     }
   }
