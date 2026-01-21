@@ -96,6 +96,8 @@ export default function ClientPage({ params }: ClientPageProps) {
 
         currentMedia = media;
 
+        console.log('currentMedia', currentMedia);
+
         updateVideoAspectRatio(currentMedia, setAspectRatio);
 
         currentMedia.addEventListener('loadedmetadata', handleLoadedMetadata);
