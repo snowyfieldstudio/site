@@ -108,14 +108,7 @@ export default function ClientPage({ params }: ClientPageProps) {
           columns={[
             {
               header: 'Client',
-              render: (c) => (
-                <Link
-                  href={`/${c.slug}`}
-                  className="text-body text-link cursor-pointer underline md:text-base"
-                >
-                  {c.name}
-                </Link>
-              ),
+              render: (c) => <div>{c.name}</div>,
             },
             { header: 'Year', render: (c) => c.year },
             { header: 'Focus', render: (c) => c.focus?.join(', ') },
@@ -157,8 +150,7 @@ export default function ClientPage({ params }: ClientPageProps) {
             )}
           </BrowserMockup>
         ) : null}
-        {/* spacing: keep two breaks */}
-        {/* spacing: keep two breaks */}
+
         {mobileSample ? (
           <MobileBrowserMockup
             url={client.displayUrl}
