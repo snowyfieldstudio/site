@@ -190,7 +190,7 @@ export default function ClientPage({ params }: ClientPageProps) {
 
   return (
     <>
-      <div className="mb-6 md:mb-10">
+      <div className="mb-10 md:mb-10">
         <Table
           rows={[client]}
           columns={[
@@ -207,7 +207,7 @@ export default function ClientPage({ params }: ClientPageProps) {
       {/* spacing: keep two breaks */}
       {/* spacing: keep two breaks */}
 
-      <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-10 pb-6">
         {desktopSample ? (
           <BrowserMockup
             url={client.displayUrl}
