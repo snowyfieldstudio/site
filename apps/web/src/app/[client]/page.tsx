@@ -30,22 +30,25 @@ export default function ClientPage({ params }: ClientPageProps) {
   const [mobileVideoAspectRatio, setMobileVideoAspectRatio] =
     React.useState('9 / 16');
 
-  const clients = useAtomValue(clientsAtom);
+  type MuxPlayerRef = React.ElementRef<typeof MuxPlayer>;
 
-  // Wait for layout hydration if clients are not ready yet.
-  if (!clients) return null;
+  const desktopPlayerRef = React.useRef<MuxPlayerRef | null>(null);
+
+  const mobilePlayerRef = React.useRef<MuxPlayerRef | null>(null);
+
+  const clients = useAtomValue(clientsAtom);
 
   const requestedSlug = resolvedParams.client ?? '';
 
-  const client = clients.find((c) => isSlugMatch(c.slug, requestedSlug));
-
-  if (!client) return notFound();
+  const client = clients
+    ? clients.find((c) => isSlugMatch(c.slug, requestedSlug))
+    : null;
 
   const desktopSample =
-    client.samples?.find((sample) => sample.deviceType === 'laptop') ?? null;
+    client?.samples?.find((sample) => sample.deviceType === 'laptop') ?? null;
 
   const mobileSample =
-    client.samples?.find((sample) => sample.deviceType === 'phone') ?? null;
+    client?.samples?.find((sample) => sample.deviceType === 'phone') ?? null;
 
   type ImageSample = Extract<Sample, { sampleType: 'image' }>;
 
@@ -56,6 +59,67 @@ export default function ClientPage({ params }: ClientPageProps) {
 
     return `${dimensions.width} / ${dimensions.height}`;
   };
+
+  const updateVideoAspectRatio = (
+    media: HTMLVideoElement | null,
+    setAspectRatio: React.Dispatch<React.SetStateAction<string>>,
+  ) => {
+    if (!media?.videoWidth || !media?.videoHeight) return;
+
+    setAspectRatio(`${media.videoWidth} / ${media.videoHeight}`);
+  };
+
+  const attachVideoAspectRatioListener = React.useCallback(
+    (
+      player: MuxPlayerRef | null,
+      setAspectRatio: React.Dispatch<React.SetStateAction<string>>,
+    ) => {
+      if (!player) return undefined;
+
+      let currentMedia: HTMLVideoElement | null = null;
+      let frameId: number | null = null;
+
+      const handleLoadedMetadata = () => {
+        updateVideoAspectRatio(currentMedia, setAspectRatio);
+      };
+
+      const attachListeners = () => {
+        const typedPlayer = player as MuxPlayerRef & {
+          media?: HTMLVideoElement | null;
+        };
+        const media = typedPlayer.media ?? null;
+
+        if (!media) {
+          frameId = window.requestAnimationFrame(attachListeners);
+          return;
+        }
+
+        currentMedia = media;
+
+        updateVideoAspectRatio(currentMedia, setAspectRatio);
+
+        currentMedia.addEventListener('loadedmetadata', handleLoadedMetadata);
+        currentMedia.addEventListener('loadeddata', handleLoadedMetadata);
+      };
+
+      attachListeners();
+
+      return () => {
+        if (frameId) {
+          window.cancelAnimationFrame(frameId);
+        }
+
+        if (currentMedia) {
+          currentMedia.removeEventListener(
+            'loadedmetadata',
+            handleLoadedMetadata,
+          );
+          currentMedia.removeEventListener('loadeddata', handleLoadedMetadata);
+        }
+      };
+    },
+    [],
+  );
 
   const desktopImageAspectRatio =
     desktopSample?.sampleType === 'image'
@@ -101,6 +165,29 @@ export default function ClientPage({ params }: ClientPageProps) {
     setMobileVideoAspectRatio(`${video.videoWidth} / ${video.videoHeight}`);
   };
 
+  React.useEffect(() => {
+    if (desktopSample?.sampleType !== 'video') return undefined;
+
+    return attachVideoAspectRatioListener(
+      desktopPlayerRef.current,
+      setDesktopVideoAspectRatio,
+    );
+  }, [attachVideoAspectRatioListener, desktopSample?.sampleType]);
+
+  React.useEffect(() => {
+    if (mobileSample?.sampleType !== 'video') return undefined;
+
+    return attachVideoAspectRatioListener(
+      mobilePlayerRef.current,
+      setMobileVideoAspectRatio,
+    );
+  }, [attachVideoAspectRatioListener, mobileSample?.sampleType]);
+
+  // Wait for layout hydration if clients are not ready yet.
+  if (!clients) return null;
+
+  if (!client) return notFound();
+
   return (
     <>
       <div className="mb-6 md:mb-10">
@@ -117,6 +204,9 @@ export default function ClientPage({ params }: ClientPageProps) {
         />
       </div>
 
+      {/* spacing: keep two breaks */}
+      {/* spacing: keep two breaks */}
+
       <div className="flex flex-col gap-10">
         {desktopSample ? (
           <BrowserMockup
@@ -126,16 +216,21 @@ export default function ClientPage({ params }: ClientPageProps) {
           >
             {desktopSample.sampleType === 'video' ? (
               <MuxPlayer
+                ref={desktopPlayerRef}
                 playbackId={desktopSample.videoPlaybackId}
                 muted
                 autoPlay
                 loop
                 nohotkeys
                 disablePictureInPicture
-                className="pointer-events-none h-full w-full object-cover"
+                playsInline
+                preload="metadata"
+                className="pointer-events-none h-full w-full"
                 style={{
                   '--controls': 'none',
                   '--play-button': 'none',
+                  '--media-object-fit': 'cover',
+                  '--media-object-position': 'center',
                 }}
                 onLoadedMetadata={handleDesktopMetadata}
               />
@@ -151,6 +246,9 @@ export default function ClientPage({ params }: ClientPageProps) {
           </BrowserMockup>
         ) : null}
 
+        {/* spacing: keep two breaks */}
+        {/* spacing: keep two breaks */}
+
         {mobileSample ? (
           <MobileBrowserMockup
             url={client.displayUrl}
@@ -159,16 +257,21 @@ export default function ClientPage({ params }: ClientPageProps) {
           >
             {mobileSample.sampleType === 'video' ? (
               <MuxPlayer
+                ref={mobilePlayerRef}
                 playbackId={mobileSample.videoPlaybackId}
                 muted
                 autoPlay
                 loop
                 nohotkeys
                 disablePictureInPicture
-                className="pointer-events-none h-full w-full object-cover"
+                playsInline
+                preload="metadata"
+                className="pointer-events-none h-full w-full"
                 style={{
                   '--controls': 'none',
                   '--play-button': 'none',
+                  '--media-object-fit': 'cover',
+                  '--media-object-position': 'center',
                 }}
                 onLoadedMetadata={handleMobileMetadata}
               />
