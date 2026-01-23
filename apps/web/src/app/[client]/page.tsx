@@ -209,7 +209,7 @@ export default function ClientPage({ params }: ClientPageProps) {
       {/* spacing: keep two breaks */}
       {/* spacing: keep two breaks */}
 
-      <div className="flex flex-col gap-10 pb-6">
+      <div className="flex flex-col items-center gap-10 pb-6 md:items-start">
         {desktopSample ? (
           <BrowserMockup
             url={client.displayUrl}
